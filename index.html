@@ -11,127 +11,181 @@
             --glass: rgba(255, 255, 255, 0.05); 
             --border: rgba(255, 255, 255, 0.1); 
             --accent: #3b82f6;
+            --accent-purple: #8b5cf6;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
         body {
             background: var(--bg);
-            /* 使用 min-height 和 flex 确保垂直居中 */
             min-height: 100vh;
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            overflow-x: hidden; /* 防止横向滚动条 */
-            color: white;
-            position: relative;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; color: white; position: relative;
         }
 
-        /* 动画背景 - 优化层级确保不干扰居中 */
+        /* 动态背景保持不变 */
         body::before {
-            content: ""; 
-            position: fixed; /* 改为 fixed 锁定背景 */
-            top: -25%; left: -25%; 
-            width: 150%; height: 150%;
+            content: ""; position: fixed; top: -25%; left: -25%; width: 150%; height: 150%;
             background: radial-gradient(circle, var(--accent) 0%, transparent 25%), 
-                        radial-gradient(circle, #8b5cf6 0%, transparent 25%);
+                        radial-gradient(circle, var(--accent-purple) 0%, transparent 25%);
             background-position: 0% 0%, 100% 100%;
             animation: move 12s ease-in-out infinite alternate;
-            z-index: -1; 
-            opacity: 0.3;
+            z-index: -1; opacity: 0.3;
         }
-
-        @keyframes move { 
-            from { transform: translate(-5%, -5%) rotate(0deg); } 
-            to { transform: translate(5%, 5%) rotate(5deg); } 
-        }
+        @keyframes move { from { transform: translate(-5%, -5%) rotate(0deg); } to { transform: translate(5%, 5%) rotate(5deg); } }
 
         .card {
             background: var(--glass);
-            backdrop-filter: blur(16px); 
-            -webkit-backdrop-filter: blur(16px);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
-            border-radius: 2.5rem; 
-            padding: 3rem 2rem;
-            width: 90%; 
-            max-width: 400px; 
-            text-align: center;
+            border-radius: 2.5rem; padding: 3rem 2rem;
+            width: 90%; max-width: 400px; text-align: center;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             animation: cardFade 0.8s ease-out;
+            position: relative;
         }
 
-        @keyframes cardFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* --- 头像核心特效区 --- */
+        .avatar-wrapper {
+            position: relative;
+            width: 120px; height: 120px;
+            margin: 0 auto 1.5rem;
+            cursor: pointer;
+            user-select: none;
         }
 
-        /* 统一头像样式 */
         .avatar {
-            width: 100px;
-            height: 100px;
+            width: 100%; height: 100%;
             border-radius: 50%;
-            border: 3px solid var(--accent);
-            margin: 0 auto 1.5rem; /* 自动左右边距实现居中 */
-            display: block;
-            object-fit: cover;
-            background-color: rgba(255,255,255,0.1);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            border: 4px solid transparent;
+            background: linear-gradient(var(--bg), var(--bg)) padding-box,
+                        linear-gradient(45deg, var(--accent), var(--accent-purple)) border-box;
+            display: block; object-fit: cover;
+            position: relative; z-index: 2;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
         }
 
-        .avatar:hover { transform: scale(1.1) rotate(10deg); }
+        /* 呼吸光环 */
+        .avatar-wrapper::after {
+            content: ""; position: absolute; inset: -5px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--accent), var(--accent-purple));
+            z-index: 1; opacity: 0.6; blur: 10px;
+            filter: blur(10px);
+            animation: neonPulse 3s infinite;
+        }
 
+        @keyframes neonPulse {
+            0%, 100% { transform: scale(1); opacity: 0.4; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        /* 悬停效果：磁吸+放大 */
+        .avatar-wrapper:hover .avatar {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.8);
+        }
+
+        /* 点击时的波纹环 */
+        .click-ring {
+            position: absolute; inset: 0; border: 2px solid var(--accent);
+            border-radius: 50%; opacity: 0; pointer-events: none; z-index: 3;
+        }
+        .active-ring { animation: ringOut 0.6s ease-out; }
+        @keyframes ringOut {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        /* 四种随机点击动画 */
+        .effect-jelly { animation: jelly 0.6s both; }
+        .effect-spin { animation: hyperSpin 0.6s both; }
+        .effect-flash { animation: flash 0.6s both; }
+        .effect-shake { animation: shake 0.4s both; }
+
+        @keyframes jelly {
+            0% { transform: scale(1.1, 1.1); }
+            30% { transform: scale(1.25, 0.75); }
+            40% { transform: scale(0.75, 1.25); }
+            50% { transform: scale(1.15, 0.85); }
+            65% { transform: scale(0.95, 1.05); }
+            100% { transform: scale(1.1, 1.1); }
+        }
+        @keyframes hyperSpin { 
+            0% { transform: rotate(0) scale(1.1); }
+            100% { transform: rotate(360deg) scale(1.1); }
+        }
+        @keyframes flash {
+            0%, 100% { filter: brightness(1) contrast(1); transform: scale(1.1); }
+            50% { filter: brightness(2) contrast(1.5) hue-rotate(90deg); transform: scale(1.3); }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) scale(1.1); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        /* --- 其他样式 --- */
         h1 { font-size: 1.75rem; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         p { color: #94a3b8; font-size: 1rem; margin-bottom: 2rem; }
-
         .links { display: grid; gap: 1rem; }
-        
         .link {
-            padding: 0.9rem; 
-            border-radius: 1rem;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border);
-            color: white; 
-            text-decoration: none;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 12px;
-            transition: all 0.3s ease; 
-            font-weight: 500;
+            padding: 0.9rem; border-radius: 1rem; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border); color: white; text-decoration: none;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: all 0.3s ease; font-weight: 500;
         }
-
         .link:hover { 
-            background: rgba(255, 255, 255, 0.1); 
-            transform: translateY(-3px); 
-            border-color: var(--accent);
-            box-shadow: 0 10px 20px -10px rgba(59, 130, 246, 0.5);
+            background: rgba(255, 255, 255, 0.1); transform: translateY(-3px); 
+            border-color: var(--accent); box-shadow: 0 10px 20px -10px rgba(59, 130, 246, 0.5);
         }
-
         .link i { font-size: 1.1rem; color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <!-- 请确保 avatar.jpg 在仓库根目录下 -->
-        <img src="./avatar.jpg" class="avatar" alt="hireli">
+        <div class="avatar-wrapper" id="avatarBox">
+            <div class="click-ring" id="ring"></div>
+            <img src="./avatar.jpg" class="avatar" id="avatarImg" alt="hireli">
+        </div>
         
         <h1>hireli</h1>
         <p>Wow</p>
 
         <div class="links">
-            <a href="https://github.com/hireli" class="link">
-                <i class="fab fa-github"></i> GitHub
-            </a>
-            <a href="projects.html" class="link">
-                <i class="fas fa-project-diagram"></i> Projects
-            </a>
-            <a href="mailto:your-email@example.com" class="link">
-                <i class="fas fa-envelope"></i> Contact
-            </a>
+            <a href="https://github.com/hireli" class="link"><i class="fab fa-github"></i> GitHub</a>
+            <a href="projects.html" class="link"><i class="fas fa-project-diagram"></i> Projects</a>
+            <a href="mailto:your@email.com" class="link"><i class="fas fa-envelope"></i> Contact</a>
         </div>
     </div>
 
+    <script>
+        const avatarImg = document.getElementById('avatarImg');
+        const avatarBox = document.getElementById('avatarBox');
+        const ring = document.getElementById('ring');
+        const effects = ['effect-jelly', 'effect-spin', 'effect-flash', 'effect-shake'];
+
+        avatarBox.addEventListener('click', () => {
+            // 1. 触发扩散光圈
+            ring.classList.remove('active-ring');
+            void ring.offsetWidth; // 触发重绘
+            ring.classList.add('active-ring');
+
+            // 2. 随机选择一个帅气的特效
+            effects.forEach(e => avatarImg.classList.remove(e));
+            const randomEffect = effects[Math.floor(Math.random() * effects.length)];
+            void avatarImg.offsetWidth; 
+            avatarImg.classList.add(randomEffect);
+        });
+
+        // 动画结束后清除类名，以便下次触发
+        avatarImg.addEventListener('animationend', (e) => {
+            if (effects.includes(e.animationName) || e.target === avatarImg) {
+                effects.forEach(eff => avatarImg.classList.remove(eff));
+            }
+        });
+    </script>
 </body>
 </html>
