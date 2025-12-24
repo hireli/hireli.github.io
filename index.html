@@ -6,85 +6,130 @@
     <title>Hireli's Space</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg: #0f172a; --glass: rgba(255, 255, 255, 0.05); --border: rgba(255, 255, 255, 0.1); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, sans-serif; }
+        :root { 
+            --bg: #0f172a; 
+            --glass: rgba(255, 255, 255, 0.05); 
+            --border: rgba(255, 255, 255, 0.1); 
+            --accent: #3b82f6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         
         body {
             background: var(--bg);
+            /* 使用 min-height 和 flex 确保垂直居中 */
             min-height: 100vh;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden; color: white;
+            display: flex; 
+            align-items: center; 
+            justify-content: center;
+            overflow-x: hidden; /* 防止横向滚动条 */
+            color: white;
+            position: relative;
         }
 
-        /* 动画背景 */
+        /* 动画背景 - 优化层级确保不干扰居中 */
         body::before {
-            content: ""; position: absolute; width: 150%; height: 150%;
-            background: radial-gradient(circle, #3b82f6 0%, transparent 20%), 
-                        radial-gradient(circle, #8b5cf6 0%, transparent 20%);
+            content: ""; 
+            position: fixed; /* 改为 fixed 锁定背景 */
+            top: -25%; left: -25%; 
+            width: 150%; height: 150%;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 25%), 
+                        radial-gradient(circle, #8b5cf6 0%, transparent 25%);
             background-position: 0% 0%, 100% 100%;
-            animation: move 10s ease-in-out infinite alternate;
-            z-index: -1; opacity: 0.4;
+            animation: move 12s ease-in-out infinite alternate;
+            z-index: -1; 
+            opacity: 0.3;
         }
-        @keyframes move { from { transform: translate(-10%, -10%); } to { transform: translate(10%, 10%); } }
+
+        @keyframes move { 
+            from { transform: translate(-5%, -5%) rotate(0deg); } 
+            to { transform: translate(5%, 5%) rotate(5deg); } 
+        }
 
         .card {
             background: var(--glass);
-            backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            backdrop-filter: blur(16px); 
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid var(--border);
-            border-radius: 2rem; padding: 3rem 2rem;
-            width: 90%; max-width: 400px; text-align: center;
+            border-radius: 2.5rem; 
+            padding: 3rem 2rem;
+            width: 90%; 
+            max-width: 400px; 
+            text-align: center;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: cardFade 0.8s ease-out;
         }
 
+        @keyframes cardFade {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 统一头像样式 */
         .avatar {
-            width: 96px; height: 96px; border-radius: 50%;
-            border: 2px solid #3b82f6; margin-bottom: 1.5rem;
-            transition: transform 0.3s;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 3px solid var(--accent);
+            margin: 0 auto 1.5rem; /* 自动左右边距实现居中 */
+            display: block;
+            object-fit: cover;
+            background-color: rgba(255,255,255,0.1);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
         }
-        .avatar:hover { transform: scale(1.1) rotate(5deg); }
 
-        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
-        p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 2rem; }
+        .avatar:hover { transform: scale(1.1) rotate(10deg); }
+
+        h1 { font-size: 1.75rem; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        p { color: #94a3b8; font-size: 1rem; margin-bottom: 2rem; }
 
         .links { display: grid; gap: 1rem; }
+        
         .link {
-            padding: 0.8rem; border-radius: 0.75rem;
+            padding: 0.9rem; 
+            border-radius: 1rem;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid var(--border);
-            color: white; text-decoration: none;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
-            transition: 0.2s; font-weight: 500;
+            color: white; 
+            text-decoration: none;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 12px;
+            transition: all 0.3s ease; 
+            font-weight: 500;
         }
-        .avatar, .profile-img {
-            width: 100px;        /* 强制宽度 */
-            height: 100px;       /* 强制高度 */
-            object-fit: cover;   /* 核心代码：自动裁剪，防止图片被拉伸或挤压 */
-            border-radius: 50%;  /* 变成正圆 */
-            display: block;      /* 居中必备 */
-            margin: 0 auto 15px; /* 居中并留出下边距 */
+
+        .link:hover { 
+            background: rgba(255, 255, 255, 0.1); 
+            transform: translateY(-3px); 
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px -10px rgba(59, 130, 246, 0.5);
         }
-        
-        .avatar {
-            background-color: rgba(255,255,255,0.2); /* 图片加载前显示一个浅色圆圈 */
-            object-fit: cover;
-        }
-        
-        .link:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); border-color: #3b82f6; }
+
+        .link i { font-size: 1.1rem; color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <!-- 自动调用你的 GitHub 头像 -->
-        <img src="./avatar.jpg" class="profile-img" alt="hireli">
+        <!-- 请确保 avatar.jpg 在仓库根目录下 -->
+        <img src="./avatar.jpg" class="avatar" alt="hireli">
         
         <h1>hireli</h1>
         <p>Wow</p>
 
         <div class="links">
-            <a href="https://github.com/hireli" class="link"><i class="fab fa-github"></i> GitHub</a>
-            <a href="projects.html" class="link"><i class="fas fa-project-diagram"></i> Projects</a>
-            <a href="#" class="link"><i class="fas fa-envelope"></i> Contact</a>
+            <a href="https://github.com/hireli" class="link">
+                <i class="fab fa-github"></i> GitHub
+            </a>
+            <a href="projects.html" class="link">
+                <i class="fas fa-project-diagram"></i> Projects
+            </a>
+            <a href="mailto:your-email@example.com" class="link">
+                <i class="fas fa-envelope"></i> Contact
+            </a>
         </div>
     </div>
 
