@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hireli's Projects</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0b0f1a;
+            --accent: #00d2ff;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', system-ui, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(0, 210, 255, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(147, 51, 234, 0.15) 0px, transparent 50%);
+            color: white;
+            min-height: 100vh;
+            padding: 4rem 2rem;
+        }
+
+        .header {
+            max-width: 1000px;
+            margin: 0 auto 3rem;
+            text-align: left;
+        }
+
+        .header h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(to right, #00d2ff, #9333ea); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: #94a3b8; }
+
+        /* 项目网格布局 */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* 项目卡片 */
+        .project-card {
+            background: var(--glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            border-radius: 1.5rem;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .card-content { padding: 2rem; }
+
+        .icon-box {
+            width: 50px; height: 50px;
+            background: rgba(0, 210, 255, 0.1);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--accent); font-size: 1.5rem;
+        }
+
+        .project-card h3 { margin-bottom: 0.75rem; font-size: 1.25rem; }
+        .project-card p {
+            color: #94a3b8; font-size: 0.95rem; line-height: 1.6;
+            margin-bottom: 1.5rem; height: 3rem; overflow: hidden;
+        }
+
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--accent); text-decoration: none;
+            font-weight: 600; font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .btn:hover { gap: 12px; opacity: 0.8; }
+
+        /* 返回按钮 */
+        .back-home {
+            position: fixed; top: 2rem; right: 2rem;
+            color: #94a3b8; text-decoration: none; font-size: 0.9rem;
+            padding: 0.5rem 1rem; border-radius: 20px;
+            background: var(--glass); border: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" class="back-home"><i class="fas fa-arrow-left"></i> Home</a>
+
+    <div class="header">
+        <h1>Projects</h1>
+        <p>这里记录了我的一些开发实践与项目展示。</p>
+    </div>
+
+    <div class="project-grid">
+        
+        <!-- 项目卡片: PortSafety -->
+        <div class="project-card">
+            <div class="card-content">
+                <div class="icon-box">
+                    <i class="fas fa-shield-halved"></i>
+                </div>
+                <h3>PortSafety</h3>
+                <p>智慧港口安全监管平台 - 专注于港口作业安全与实时数据监控展示。</p>
+                <a href="https://hireli.github.io/rzport/TICenter/PortSafety" target="_blank" class="btn">
+                    访问项目 <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- 占位项目卡片 A (你可以修改或删除) -->
+        <div class="project-card">
+            <div class="card-content">
+                <div class="icon-box">
+                    <i class="fas fa-code"></i>
+                </div>
+                <h3>My Portfolio</h3>
+                <p>当前这个极简、花哨的个人导航与项目展示主页。</p>
+                <a href="https://github.com/hireli/hireli.github.io" class="btn">查看源码 <i class="fab fa-github"></i></a>
+            </div>
+        </div>
+
+        <!-- 占位项目卡片 B -->
+        <div class="project-card">
+            <div class="card-content">
+                <div class="icon-box">
+                    <i class="fas fa-ellipsis"></i>
+                </div>
+                <h3>Coming Soon</h3>
+                <p>更多精彩项目正在整理中，敬请期待...</p>
+                <span class="btn" style="color: #475569;">Developing...</span>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>
