@@ -55,10 +55,20 @@
             display: flex; align-items: center; justify-content: center; gap: 10px;
             transition: 0.2s; font-weight: 500;
         }
+        .avatar, .profile-img {
+            width: 100px;        /* 强制宽度 */
+            height: 100px;       /* 强制高度 */
+            object-fit: cover;   /* 核心代码：自动裁剪，防止图片被拉伸或挤压 */
+            border-radius: 50%;  /* 变成正圆 */
+            display: block;      /* 居中必备 */
+            margin: 0 auto 15px; /* 居中并留出下边距 */
+        }
+        
         .avatar {
             background-color: rgba(255,255,255,0.2); /* 图片加载前显示一个浅色圆圈 */
             object-fit: cover;
         }
+        
         .link:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); border-color: #3b82f6; }
     </style>
 </head>
