@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>入港安全告知书</title>
+    
+    <!-- 引入核心库 -->
+    <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+    <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://unpkg.com/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #0066cc;
+            --bg: #f4f5f7;
+            --disabled: #b0c4de;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            font-family: -apple-system, Helvetica, sans-serif;
+            color: #333;
+            overscroll-behavior: none; /* 禁止橡皮筋效果 */
+        }
+
+        .mobile-app {
+            padding: 20px;
+            padding-bottom: 100px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header-nav {
+            background: #fff;
+            padding: 15px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 16px;
+            border-left: 4px solid var(--primary);
+            padding-left: 10px;
+            margin-bottom: 15px;
+        }
+
+        /* --- 步骤1：阅读框样式 --- */
+        .read-box {
+            height: 60vh;
+            overflow-y: scroll;
+            background: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 10px;
+            /* 优化滚动体验 */
+            -webkit-overflow-scrolling: touch; 
+        }
+        
+        .read-box p { margin-bottom: 10px; text-indent: 2em; }
+        .read-box .list-item { margin-bottom: 5px; }
+
+        .progress-tip {
+            text-align: center; font-size: 12px; color: #999; margin-bottom: 10px;
+        }
+
+        /* --- 步骤2：表单样式 --- */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
+        input[type="text"] {
+            width: 100%; padding: 12px; border: 1px solid #ddd;
+            border-radius: 6px; font-size: 16px; box-sizing: border-box;
+        }
+
+        /* --- 签名板核心修复 --- */
+        .sign-area {
+            border: 2px dashed #ccc; 
+            background: #fff; /* 必须是纯色背景 */
+            border-radius: 6px; 
+            position: relative; 
+            height: 200px;
+            width: 100%;
+            overflow: hidden;
+        }
+        
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            /* 关键修复：禁止浏览器默认的触摸动作（如滚动），确保手指能画画 */
+            touch-action: none; 
+        }
+
+        .clear-sign {
+            position: absolute; top: 10px; right: 10px;
+            background: #eee; border: 1px solid #ccc;
+            padding: 6px 12px; font-size: 12px; border-radius: 4px; z-index: 10;
+        }
+
+        .sign-placeholder {
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); 
+            color: #ddd; font-size: 20px; pointer-events: none;
+        }
+
+        /* 底部固定栏 */
+        .footer-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #fff; padding: 15px 20px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            text-align: center; z-index: 100;
+        }
+
+        .btn {
+            background: var(--primary); color: #fff; border: none;
+            padding: 12px 30px; border-radius: 25px;
+            font-size: 16px; font-weight: bold; width: 100%; max-width: 400px;
+            transition: all 0.3s;
+        }
+        .btn:disabled { background: var(--disabled); cursor: not-allowed; }
+
+        .hidden { display: none !important; }
+
+        /* --- PDF 打印模板样式 (保持不变) --- */
+        #print-layer { position: fixed; left: -9999px; top: 0; }
+        .a4-page {
+            width: 210mm; height: 297mm; background: white;
+            padding: 25mm 20mm; box-sizing: border-box;
+            font-family: "SimSun", serif; color: #000; overflow: hidden;
+            position: relative;
+        }
+        .doc-title { text-align: center; font-size: 26pt; font-weight: bold; margin-bottom: 40px; margin-top: 10px; }
+        .doc-body { font-size: 14pt; line-height: 1.6; text-align: justify; }
+        .p-indent { text-indent: 2em; margin-bottom: 10px; }
+        .list-item { margin-bottom: 5px; text-align: justify; }
+        .page-num { position: absolute; bottom: 15mm; left: 0; width: 100%; text-align: center; font-size: 12pt; }
+        .sign-section { margin-top: 60px; font-size: 14pt; }
+        .sign-row { margin-bottom: 25px; position: relative; }
+        .inserted-sign-img { position: absolute; left: 170px; top: -20px; height: 50px; z-index: 10; }
+        .inserted-text { display: inline-block; margin-left: 10px; font-weight: bold; }
+        .official-footer { margin-top: 50px; text-align: right; line-height: 1.8; font-size: 14pt; margin-right: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="header-nav" id="navTitle">步骤 1/2：阅读安全告知</div>
+    
+    <div class="mobile-app">
+        
+        <!-- ====== 步骤 1：强制阅读 ====== -->
+        <div id="step-read">
+            <div class="card">
+                <h3>入港安全告知书</h3>
+                <div class="progress-tip" id="scrollTip">请向下划动阅读完整条款 (5s)</div>
+                
+                <div class="read-box" id="readBox" onscroll="checkScroll()">
+                    <p><strong>为了确保您在港区内的人身安全，避免出现伤害您或他人的意外发生，现将相关安全事项告知如下：</strong></p>
+                    <div class="list-item">一、港区内禁止随意停放车辆，车辆需停在现场管理人员指定区域，人员必须听从现场管理人员指挥；</div>
+                    <div class="list-item">二、人员下车时要正确佩戴安全帽，夜间按规定穿戴带有反光标识的劳保防护用品和佩戴警示灯（爆闪灯），并注意躲避运行中的机械、车辆，防止车辆伤害；</div>
+                    <div class="list-item">三、港区禁止吸烟，禁止随意丢弃垃圾杂物；</div>
+                    <div class="list-item">四、未经允许严禁进入作业场地警戒封闭区域；</div>
+                    <div class="list-item">五、现场注意事项</div>
+                    <div class="list-item">5.1 进入现场后，严禁在垛空、垛边停留，防止货垛异常出现坍塌或塌方；</div>
+                    <div class="list-item">5.2 严禁在高杆灯、皮带机、货关下停留，防止高空坠物或设备倾倒；</div>
+                    <div class="list-item">5.3 严禁在机械、车辆运行路线停留或穿行，防止因机械、车辆司机观察不周造成的碰撞或碾压；</div>
+                    <div class="list-item">5.4 严禁私自攀爬垛位，防止人员高空滑落或货物流淌掩埋；</div>
+                    <div class="list-item">5.5 严禁私自用港区内的设施、机械及私接电源，防止触电或意外伤害；</div>
+                    <div class="list-item">5.6 严禁穿行作业封闭区，防止货物打击及机械碰撞；</div>
+                    <div class="list-item">5.7 严禁靠近运转中的皮带等设备，防止卷入造成机械伤害；</div>
+                    <div class="list-item">5.8 严禁靠近码头边等临边区域，防止坠海淹溺；</div>
+                    <div class="list-item">5.9 严禁靠近岸边缆绳区域，防止缆绳抽打伤害；</div>
+                    <div class="list-item">5.10 上下大机时请抓稳踏牢，防高处坠落伤害；</div>
+                    <div class="list-item">5.11 漏斗、溜筒维修时上方有积料严禁作业，必须积料清理完毕才能开始维修作业；</div>
+                    <div class="list-item">5.12 皮带维修须拉至少 3 处急停，并向中控室确认；</div>
+                    <div class="list-item">5.13 现场封闭隔离措施不标准不准开工；</div>
+                    <div class="list-item">5.14 急停、停电、挂牌、上锁措施没有执行不准开工，需停高压电的必须办理停电手续；</div>
+                    <div class="list-item">5.15 维修人员劳保防护用品穿戴不规范不准开工；</div>
+                    <div class="list-item">5.16 特种作业未提供特殊作业资格证件不准开工；</div>
+                    <div class="list-item">5.17 特殊作业（登高、动火、临时用电、密闭空间、吊装等）没有办理审批手续不准开工；</div>
+                    <div class="list-item">5.18 使用不符合国家规范、标准的工属具、灭火器、仪器仪表不准开工；</div>
+                    <div class="list-item">5.19 不得超出项目维修范围的触碰、调试、维修；</div>
+                    <div class="list-item">5.20 不得跨越、触碰任何没有确认办理停电的转动、传动、振动功能部件及电气部件，并保持安全距离、采取防护措施；</div>
+                    <div class="list-item">5.21 现场不准抽烟、打闹、跳跃、高空抛物，严禁酒后上岗；</div>
+                    <div class="list-item">5.22 设备运行关路严禁停留、作业；</div>
+                    <div class="list-item">5.23 坠落高度在基准面 2 米及以上维修必须佩带安全带；</div>
+                    <div class="list-item">5.24 维修完毕工完场清，废旧件必须收回；</div>
+                    <div class="list-item">5.25 维修作业严格执行《维修联络程序》、《岗位操作规程》；</div>
+                    <div class="list-item">六、码头、场区、维修区存在的主要危险</div>
+                    <div class="list-item">7.1 行经装载机作业区域伤害；7.2 行经倒运车作业区伤害；7.3 行经散货货物塌落伤害；7.4 行经货关撒货、悠荡伤害；7.5 岸边高压（低压）电伤害；7.6 缆绳断裂抽打伤害；7.7 坠海、坠物伤害；7.8 火灾伤害；7.9 车辆道路交通伤害；7.10 火车伤害；7.11 门机、挖掘机旋转伤害；7.12 上下设备坠落伤害；7.13 雨季坑洼、下水井损坏坠落伤害；7.14 维修作业机械伤害；7.15 有限空间中毒、窒息伤害；</div>
+                    <div class="list-item">七、遵守国家法律法规和港口设施保安相关规定；注意港区交通安全标志、安全警示标识、禁令、警戒安全提示，并遵守执行；</div>
+                    <div class="list-item">八、维修作业十大风险</div>
+                    <div class="list-item">1、高处坠落 2、触电风险 3、绞伤风险 4、挤压风险 5、刺割风险 6、物体打击 7、起重伤害 8、中毒窒息 9、烫、灼伤害 10、火灾、爆炸伤害</div>
+                    <div class="list-item">九、维修作业八项规定</div>
+                    <div class="list-item">1、严禁私自上皮带机 2、严禁触摸转动部位 3、严禁违规进入封闭区域 4、严禁无操作设备 5、严禁吸烟 6、必须戴安全帽，劳保穿戴整齐 7、上下走梯必须手扶栏杆 8、开展维修之前必须做好安全措施</div>
+                    <p style="text-align: center; color: #999; margin-top: 20px;">-- 已阅读到底部 --</p>
+                </div>
+            </div>
+            
+            <div class="footer-bar">
+                <button id="nextBtn" class="btn" onclick="goToStep2()" disabled>请阅读完条款 (5)</button>
+            </div>
+        </div>
+
+        <!-- ====== 步骤 2：填写与签署 ====== -->
+        <div id="step-sign" class="hidden">
+            <div class="card">
+                <h3>填写信息</h3>
+                <div class="form-group">
+                    <label>外协单位名称：</label>
+                    <input type="text" id="inputCompany" placeholder="请输入单位全称">
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>签名确认</h3>
+                <div class="sign-area">
+                    <div class="sign-placeholder" id="signTip">请横屏在此签字</div>
+                    <canvas id="signature-pad"></canvas>
+                    <button class="clear-sign" onclick="clearSign()">重写</button>
+                </div>
+                <div style="margin-top: 15px; display: flex; align-items: center;">
+                    <input type="checkbox" id="agreeCheck" onchange="toggleGenBtn()" style="width: 20px; height: 20px;">
+                    <span style="margin-left: 10px; font-size: 14px;">我已阅读并完全理解安全告知内容</span>
+                </div>
+            </div>
+
+            <div class="footer-bar">
+                <button id="genBtn" class="btn" onclick="generatePDF()" disabled>生成 PDF 文件</button>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- 3. 隐藏的打印层 (严格复刻参考图) -->
+    <div id="print-layer">
+        <!-- === 第 1 页 === -->
+        <div class="a4-page" id="page1">
+            <div class="doc-title">入港安全告知书</div>
+            <div class="doc-body">
+                <div class="p-indent">为了确保您在港区内的人身安全，避免出现伤害您或他人的意外发生，现将相关安全事项告知如下：</div>
+                <div class="list-item">一、港区内禁止随意停放车辆，车辆需停在现场管理人员指定区域，人员必须听从现场管理人员指挥；</div>
+                <div class="list-item">二、人员下车时要正确佩戴安全帽，夜间按规定穿戴带有反光标识的劳保防护用品和佩戴警示灯（爆闪灯），并注意躲避运行中的机械、车辆，防止车辆伤害；</div>
+                <div class="list-item">三、港区禁止吸烟，禁止随意丢弃垃圾杂物；</div>
+                <div class="list-item">四、未经允许严禁进入作业场地警戒封闭区域；</div>
+                <div class="list-item">五、现场注意事项</div>
+                <div class="list-item">5.1 进入现场后，严禁在垛空、垛边停留，防止货垛异常出现坍塌或塌方；</div>
+                <div class="list-item">5.2 严禁在高杆灯、皮带机、货关下停留，防止高空坠物或设备倾倒；</div>
+                <div class="list-item">5.3 严禁在机械、车辆运行路线停留或穿行，防止因机械、车辆司机观察不周造成的碰撞或碾压；</div>
+                <div class="list-item">5.4 严禁私自攀爬垛位，防止人员高空滑落或货物流淌掩埋；</div>
+                <div class="list-item">5.5 严禁私自用港区内的设施、机械及私接电源，防止触电或意外伤害；</div>
+                <div class="list-item">5.6 严禁穿行作业封闭区，防止货物打击及机械碰撞；</div>
+                <div class="list-item">5.7 严禁靠近运转中的皮带等设备，防止卷入造成机械伤害；</div>
+                <div class="list-item">5.8 严禁靠近码头边等临边区域，防止坠海淹溺；</div>
+                <div class="list-item">5.9 严禁靠近岸边缆绳区域，防止缆绳抽打伤害；</div>
+                <div class="list-item">5.10 上下大机时请抓稳踏牢，防高处坠落伤害；</div>
+                <div class="list-item">5.11 漏斗、溜筒维修时上方有积料严禁作业，必须积料清理完毕才能开始维修作业；</div>
+                <div class="list-item">5.12 皮带维修须拉至少 3 处急停，并向中控室确认；</div>
+            </div>
+            <div class="page-num">— 1 —</div>
+        </div>
+
+        <!-- === 第 2 页 === -->
+        <div class="a4-page" id="page2">
+            <div class="doc-body" style="margin-top: 10px;">
+                <div class="list-item">5.13 现场封闭隔离措施不标准不准开工；</div>
+                <div class="list-item">5.14 急停、停电、挂牌、上锁措施没有执行不准开工，需停高压电的必须办理停电手续；</div>
+                <div class="list-item">5.15 维修人员劳保防护用品穿戴不规范不准开工；</div>
+                <div class="list-item">5.16 特种作业未提供特殊作业资格证件不准开工；</div>
+                <div class="list-item">5.17 特殊作业（登高、动火、临时用电、密闭空间、吊装等）没有办理审批手续不准开工；</div>
+                <div class="list-item">5.18 使用不符合国家规范、标准的工属具、灭火器、仪器仪表不准开工；</div>
+                <div class="list-item">5.19 不得超出项目维修范围的触碰、调试、维修；</div>
+                <div class="list-item">5.20 不得跨越、触碰任何没有确认办理停电的转动、传动、振动功能部件及电气部件，并保持安全距离、采取防护措施；</div>
+                <div class="list-item">5.21 现场不准抽烟、打闹、跳跃、高空抛物，严禁酒后上岗；</div>
+                <div class="list-item">5.22 设备运行关路严禁停留、作业；</div>
+                <div class="list-item">5.23 坠落高度在基准面 2 米及以上维修必须佩带安全带；</div>
+                <div class="list-item">5.24 维修完毕工完场清，废旧件必须收回；</div>
+                <div class="list-item">5.25 维修作业严格执行《维修联络程序》、《岗位操作规程》；</div>
+                <div class="list-item" style="margin-top: 15px;">六、码头、场区、维修区存在的主要危险</div>
+                <div class="list-item">7.1 行经装载机作业区域伤害；7.2 行经倒运车作业区伤害；7.3 行经散货货物塌落伤害；7.4 行经货关撒货、悠荡伤害；7.5 岸边高压（低压）电伤害；7.6 缆绳断裂抽打伤害；7.7 坠海、坠物伤害；7.8 火灾伤害；7.9 车辆道路交通伤害；7.10 火车伤害；7.11 门机、挖掘机旋转伤害；7.12 上下设备坠落伤害；7.13 雨季坑洼、下水井损坏坠落伤害；7.14 维修作业机械伤害；7.15 有限空间中毒、窒息伤害；</div>
+                <div class="list-item" style="margin-top: 15px;">七、遵守国家法律法规和港口设施保安相关规定；注意港区交通安全标志、安全警示标识、禁令、警戒安全提示，并遵守执行；</div>
+                <div class="list-item" style="margin-top: 15px;">八、维修作业十大风险</div>
+                <div class="list-item">1、高处坠落 2、触电风险 3、绞伤风险 4、挤压风险 5、刺割风险 6、物体打击 7、起重伤害 8、中毒窒息 9、烫、灼伤害 10、火灾、爆炸伤害</div>
+                <div class="list-item" style="margin-top: 15px;">九、维修作业八项规定</div>
+            </div>
+            <div class="page-num">— 2 —</div>
+        </div>
+
+        <!-- === 第 3 页 === -->
+        <div class="a4-page" id="page3">
+            <div class="doc-body" style="margin-top: 10px;">
+                <div class="list-item">1、严禁私自上皮带机 2、严禁触摸转动部位 3、严禁违规进入封闭区域 4、严禁无操作设备 5、严禁吸烟 6、必须戴安全帽，劳保穿戴整齐 7、上下走梯必须手扶栏杆 8、开展维修之前必须做好安全措施</div>
+                <div class="p-indent" style="margin-top: 30px;">请您认真阅读并严格遵守以上安全注意事项内容。谢谢合作，日照港技术创新中心南区维修中心</div>
+                <div class="sign-section">
+                    <div class="sign-row">单位：<span id="fillCompany" class="inserted-text"></span></div>
+                    <div class="sign-row">被告知人：<img id="fillSign" class="inserted-sign-img" src="" style="display:none;"></div>
+                </div>
+                <div class="official-footer">
+                    <div>技术创新中心南区维修中心</div>
+                    <div id="fillDate" style="margin-top: 15px;">2025 年 X 月 X 日</div>
+                </div>
+            </div>
+            <div class="page-num">— 3 —</div>
+        </div>
+    </div>
+
+    <script>
+        // --- 状态变量 ---
+        let signaturePad = null;
+        let countdown = 5; // 强制阅读时间
+        let timer = null;
+        let hasReadBottom = false; // 是否滑动到底部
+        let hasTimePassed = false; // 时间是否到了
+
+        window.onload = function() {
+            // 初始化日期
+            const now = new Date();
+            const dateStr = `${now.getFullYear()} 年 ${now.getMonth()+1} 月 ${now.getDate()} 日`;
+            document.getElementById('fillDate').innerText = dateStr;
+            // 启动阅读倒计时
+            startReadingTimer();
+        };
+
+        // --- 阅读逻辑 ---
+        function startReadingTimer() {
+            const btn = document.getElementById('nextBtn');
+            const tip = document.getElementById('scrollTip');
+            timer = setInterval(() => {
+                countdown--;
+                if (countdown > 0) {
+                    btn.innerText = `请阅读完条款 (${countdown})`;
+                    tip.innerText = `请向下划动阅读完整条款 (${countdown}s)`;
+                } else {
+                    clearInterval(timer);
+                    hasTimePassed = true;
+                    tip.innerText = "请向下划动到底部";
+                    checkEnableNext();
+                }
+            }, 1000);
+        }
+
+        function checkScroll() {
+            const box = document.getElementById('readBox');
+            if (box.scrollTop + box.clientHeight >= box.scrollHeight - 10) {
+                hasReadBottom = true;
+                checkEnableNext();
+            }
+        }
+
+        function checkEnableNext() {
+            const btn = document.getElementById('nextBtn');
+            if (hasTimePassed && hasReadBottom) {
+                btn.disabled = false;
+                btn.innerText = "我已阅读完毕，下一步";
+                document.getElementById('scrollTip').innerText = "阅读完成，请点击下一步";
+                document.getElementById('scrollTip').style.color = "green";
+            } else if (hasTimePassed && !hasReadBottom) {
+                btn.innerText = "请划动到底部";
+            }
+        }
+
+        // --- 关键：切换到步骤2时才初始化签名板 ---
+        function goToStep2() {
+            document.getElementById('step-read').classList.add('hidden');
+            document.getElementById('step-sign').classList.remove('hidden');
+            document.getElementById('navTitle').innerText = "步骤 2/2：填写与签署";
+            window.scrollTo(0, 0);
+            
+            // 必须在 div 显示出来后，才初始化签名板，否则宽/高是 0
+            initSignaturePad();
+        }
+
+        function initSignaturePad() {
+            const canvas = document.getElementById('signature-pad');
+            // 设置画布尺寸（适配高清屏）
+            const ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+
+            // 创建签名对象
+            signaturePad = new SignaturePad(canvas, { 
+                minWidth: 1.5, 
+                maxWidth: 3.5,
+                backgroundColor: 'rgba(255, 255, 255, 0)' // 透明背景
+            });
+
+            // 监听开始签名，隐藏提示文字
+            signaturePad.addEventListener("beginStroke", () => {
+                document.getElementById('signTip').style.display = 'none';
+            });
+        }
+
+        function clearSign() {
+            if(signaturePad) {
+                signaturePad.clear();
+                document.getElementById('signTip').style.display = 'block';
+            }
+        }
+
+        function toggleGenBtn() {
+            document.getElementById('genBtn').disabled = !document.getElementById('agreeCheck').checked;
+        }
+
+        // --- PDF 生成逻辑 ---
+        async function generatePDF() {
+            const company = document.getElementById('inputCompany').value.trim();
+            if(!company) return alert('请填写外协单位名称');
+            if(!signaturePad || signaturePad.isEmpty()) return alert('请签名');
+
+            const btn = document.getElementById('genBtn');
+            btn.textContent = '正在生成 PDF...';
+            btn.disabled = true;
+
+            try {
+                // 填充数据到打印层
+                document.getElementById('fillCompany').innerText = company;
+                const signImg = document.getElementById('fillSign');
+                signImg.src = signaturePad.toDataURL();
+                signImg.style.display = 'block';
+
+                // 生成
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageIDs = ['page1', 'page2', 'page3'];
+                
+                for (let i = 0; i < pageIDs.length; i++) {
+                    const pageEl = document.getElementById(pageIDs[i]);
+                    const canvas = await html2canvas(pageEl, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                    const imgData = canvas.toDataURL('image/jpeg', 0.9);
+                    if (i > 0) pdf.addPage();
+                    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
+                }
+
+                pdf.save(`入港安全告知书_${company}.pdf`);
+
+            } catch (err) {
+                console.error(err);
+                alert('生成失败，请重试');
+            } finally {
+                btn.textContent = '生成 PDF 文件';
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
