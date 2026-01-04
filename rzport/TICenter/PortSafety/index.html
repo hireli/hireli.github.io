@@ -73,7 +73,6 @@
             line-height: 1.8;
             color: #444;
             margin-bottom: 10px;
-            /* 优化滚动体验 */
             -webkit-overflow-scrolling: touch; 
         }
         
@@ -92,10 +91,10 @@
             border-radius: 6px; font-size: 16px; box-sizing: border-box;
         }
 
-        /* --- 签名板核心修复 --- */
+        /* --- 签名板样式 --- */
         .sign-area {
             border: 2px dashed #ccc; 
-            background: #fff; /* 必须是纯色背景 */
+            background: #fff; 
             border-radius: 6px; 
             position: relative; 
             height: 200px;
@@ -107,8 +106,7 @@
             width: 100%;
             height: 100%;
             display: block;
-            /* 关键修复：禁止浏览器默认的触摸动作（如滚动），确保手指能画画 */
-            touch-action: none; 
+            touch-action: none; /* 关键：防止滚动冲突 */
         }
 
         .clear-sign {
@@ -141,7 +139,7 @@
 
         .hidden { display: none !important; }
 
-        /* --- PDF 打印模板样式 (保持不变) --- */
+        /* --- PDF 打印模板样式 --- */
         #print-layer { position: fixed; left: -9999px; top: 0; }
         .a4-page {
             width: 210mm; height: 297mm; background: white;
@@ -154,9 +152,23 @@
         .p-indent { text-indent: 2em; margin-bottom: 10px; }
         .list-item { margin-bottom: 5px; text-align: justify; }
         .page-num { position: absolute; bottom: 15mm; left: 0; width: 100%; text-align: center; font-size: 12pt; }
+        
         .sign-section { margin-top: 60px; font-size: 14pt; }
         .sign-row { margin-bottom: 25px; position: relative; }
-        .inserted-sign-img { position: absolute; left: 170px; top: -20px; height: 50px; z-index: 10; }
+        
+        /* 
+           ★ 修改部分：调整签名的位置 
+           left: 120px (让签名更靠左，紧挨文字)
+           top: -10px  (微调垂直对齐)
+        */
+        .inserted-sign-img { 
+            position: absolute; 
+            left: 120px; 
+            top: -10px; 
+            height: 55px; 
+            z-index: 10; 
+        }
+        
         .inserted-text { display: inline-block; margin-left: 10px; font-weight: bold; }
         .official-footer { margin-top: 50px; text-align: right; line-height: 1.8; font-size: 14pt; margin-right: 20px; }
     </style>
@@ -226,7 +238,7 @@
             <div class="card">
                 <h3>填写信息</h3>
                 <div class="form-group">
-                    <label>外协单位名称：</label>
+                    <label>单位名称：</label>
                     <input type="text" id="inputCompany" placeholder="请输入单位全称">
                 </div>
             </div>
@@ -379,33 +391,30 @@
             }
         }
 
-        // --- 关键：切换到步骤2时才初始化签名板 ---
+        // --- 切换到步骤2时才初始化签名板 ---
         function goToStep2() {
             document.getElementById('step-read').classList.add('hidden');
             document.getElementById('step-sign').classList.remove('hidden');
             document.getElementById('navTitle').innerText = "步骤 2/2：填写与签署";
             window.scrollTo(0, 0);
             
-            // 必须在 div 显示出来后，才初始化签名板，否则宽/高是 0
+            // 必须在 div 显示出来后，才初始化签名板
             initSignaturePad();
         }
 
         function initSignaturePad() {
             const canvas = document.getElementById('signature-pad');
-            // 设置画布尺寸（适配高清屏）
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             canvas.width = canvas.offsetWidth * ratio;
             canvas.height = canvas.offsetHeight * ratio;
             canvas.getContext("2d").scale(ratio, ratio);
 
-            // 创建签名对象
             signaturePad = new SignaturePad(canvas, { 
                 minWidth: 1.5, 
                 maxWidth: 3.5,
-                backgroundColor: 'rgba(255, 255, 255, 0)' // 透明背景
+                backgroundColor: 'rgba(255, 255, 255, 0)'
             });
 
-            // 监听开始签名，隐藏提示文字
             signaturePad.addEventListener("beginStroke", () => {
                 document.getElementById('signTip').style.display = 'none';
             });
