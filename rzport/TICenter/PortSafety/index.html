@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>入港安全告知书</title>
+    <title>入场安全须知</title>
     
     <!-- 引入核心库 -->
     <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -23,7 +23,7 @@
             background-color: var(--bg);
             font-family: -apple-system, Helvetica, sans-serif;
             color: #333;
-            overscroll-behavior: none; /* 禁止橡皮筋效果 */
+            overscroll-behavior: none;
         }
 
         .mobile-app {
@@ -76,7 +76,7 @@
             -webkit-overflow-scrolling: touch; 
         }
         
-        .read-box p { margin-bottom: 10px; text-indent: 2em; }
+        .read-box p { margin-bottom: 10px; }
         .read-box .list-item { margin-bottom: 5px; }
 
         .progress-tip {
@@ -106,7 +106,7 @@
             width: 100%;
             height: 100%;
             display: block;
-            touch-action: none; /* 关键：防止滚动冲突 */
+            touch-action: none;
         }
 
         .clear-sign {
@@ -147,83 +147,87 @@
             font-family: "SimSun", serif; color: #000; overflow: hidden;
             position: relative;
         }
-        .doc-title { text-align: center; font-size: 26pt; font-weight: bold; margin-bottom: 40px; margin-top: 10px; }
-        .doc-body { font-size: 14pt; line-height: 1.6; text-align: justify; }
-        .p-indent { text-indent: 2em; margin-bottom: 10px; }
-        .list-item { margin-bottom: 5px; text-align: justify; }
-        .page-num { position: absolute; bottom: 15mm; left: 0; width: 100%; text-align: center; font-size: 12pt; }
+        .doc-title { text-align: center; font-size: 22pt; font-weight: bold; margin-bottom: 15px; }
+        .doc-subtitle { text-align: center; font-size: 14pt; margin-bottom: 30px; }
+        .doc-body { font-size: 13pt; line-height: 1.8; }
+        .section-title { font-weight: bold; margin-top: 15px; margin-bottom: 8px; }
+        .list-item { margin-bottom: 6px; text-indent: 0; }
+        .indent-text { text-indent: 2em; margin-bottom: 10px; }
         
-        .sign-section { margin-top: 60px; font-size: 14pt; }
-        .sign-row { margin-bottom: 25px; position: relative; }
+        .sign-section { margin-top: 50px; font-size: 13pt; line-height: 2.0; }
+        .sign-row { margin-bottom: 20px; position: relative; }
+        .underline { 
+            display: inline-block; 
+            border-bottom: 1px solid #000; 
+            min-width: 200px;
+            text-align: center;
+        }
         
-        /* 
-           ★ 修改部分：调整签名的位置 
-           left: 120px (让签名更靠左，紧挨文字)
-           top: -10px  (微调垂直对齐)
-        */
         .inserted-sign-img { 
             position: absolute; 
-            left: 120px; 
-            top: -10px; 
-            height: 55px; 
+            left: 280px; 
+            top: -8px; 
+            height: 50px; 
             z-index: 10; 
         }
         
-        .inserted-text { display: inline-block; margin-left: 10px; font-weight: bold; }
-        .official-footer { margin-top: 50px; text-align: right; line-height: 1.8; font-size: 14pt; margin-right: 20px; }
+        .official-footer { 
+            margin-top: 50px; 
+            text-align: right; 
+            line-height: 2.0; 
+            font-size: 13pt; 
+        }
     </style>
 </head>
 <body>
 
-    <div class="header-nav" id="navTitle">步骤 1/2：阅读安全告知</div>
+    <div class="header-nav" id="navTitle">步骤 1/2：阅读安全须知</div>
     
     <div class="mobile-app">
         
         <!-- ====== 步骤 1：强制阅读 ====== -->
         <div id="step-read">
             <div class="card">
-                <h3>入港安全告知书</h3>
+                <h3>入场安全须知</h3>
                 <div class="progress-tip" id="scrollTip">请向下划动阅读完整条款 (5s)</div>
                 
                 <div class="read-box" id="readBox" onscroll="checkScroll()">
-                    <p><strong>为了确保您在港区内的人身安全，避免出现伤害您或他人的意外发生，现将相关安全事项告知如下：</strong></p>
-                    <div class="list-item">一、港区内禁止随意停放车辆，车辆需停在现场管理人员指定区域，人员必须听从现场管理人员指挥；</div>
-                    <div class="list-item">二、人员下车时要正确佩戴安全帽，夜间按规定穿戴带有反光标识的劳保防护用品和佩戴警示灯（爆闪灯），并注意躲避运行中的机械、车辆，防止车辆伤害；</div>
-                    <div class="list-item">三、港区禁止吸烟，禁止随意丢弃垃圾杂物；</div>
-                    <div class="list-item">四、未经允许严禁进入作业场地警戒封闭区域；</div>
-                    <div class="list-item">五、现场注意事项</div>
-                    <div class="list-item">5.1 进入现场后，严禁在垛空、垛边停留，防止货垛异常出现坍塌或塌方；</div>
-                    <div class="list-item">5.2 严禁在高杆灯、皮带机、货关下停留，防止高空坠物或设备倾倒；</div>
-                    <div class="list-item">5.3 严禁在机械、车辆运行路线停留或穿行，防止因机械、车辆司机观察不周造成的碰撞或碾压；</div>
-                    <div class="list-item">5.4 严禁私自攀爬垛位，防止人员高空滑落或货物流淌掩埋；</div>
-                    <div class="list-item">5.5 严禁私自用港区内的设施、机械及私接电源，防止触电或意外伤害；</div>
-                    <div class="list-item">5.6 严禁穿行作业封闭区，防止货物打击及机械碰撞；</div>
-                    <div class="list-item">5.7 严禁靠近运转中的皮带等设备，防止卷入造成机械伤害；</div>
-                    <div class="list-item">5.8 严禁靠近码头边等临边区域，防止坠海淹溺；</div>
-                    <div class="list-item">5.9 严禁靠近岸边缆绳区域，防止缆绳抽打伤害；</div>
-                    <div class="list-item">5.10 上下大机时请抓稳踏牢，防高处坠落伤害；</div>
-                    <div class="list-item">5.11 漏斗、溜筒维修时上方有积料严禁作业，必须积料清理完毕才能开始维修作业；</div>
-                    <div class="list-item">5.12 皮带维修须拉至少 3 处急停，并向中控室确认；</div>
-                    <div class="list-item">5.13 现场封闭隔离措施不标准不准开工；</div>
-                    <div class="list-item">5.14 急停、停电、挂牌、上锁措施没有执行不准开工，需停高压电的必须办理停电手续；</div>
-                    <div class="list-item">5.15 维修人员劳保防护用品穿戴不规范不准开工；</div>
-                    <div class="list-item">5.16 特种作业未提供特殊作业资格证件不准开工；</div>
-                    <div class="list-item">5.17 特殊作业（登高、动火、临时用电、密闭空间、吊装等）没有办理审批手续不准开工；</div>
-                    <div class="list-item">5.18 使用不符合国家规范、标准的工属具、灭火器、仪器仪表不准开工；</div>
-                    <div class="list-item">5.19 不得超出项目维修范围的触碰、调试、维修；</div>
-                    <div class="list-item">5.20 不得跨越、触碰任何没有确认办理停电的转动、传动、振动功能部件及电气部件，并保持安全距离、采取防护措施；</div>
-                    <div class="list-item">5.21 现场不准抽烟、打闹、跳跃、高空抛物，严禁酒后上岗；</div>
-                    <div class="list-item">5.22 设备运行关路严禁停留、作业；</div>
-                    <div class="list-item">5.23 坠落高度在基准面 2 米及以上维修必须佩带安全带；</div>
-                    <div class="list-item">5.24 维修完毕工完场清，废旧件必须收回；</div>
-                    <div class="list-item">5.25 维修作业严格执行《维修联络程序》、《岗位操作规程》；</div>
-                    <div class="list-item">六、码头、场区、维修区存在的主要危险</div>
-                    <div class="list-item">7.1 行经装载机作业区域伤害；7.2 行经倒运车作业区伤害；7.3 行经散货货物塌落伤害；7.4 行经货关撒货、悠荡伤害；7.5 岸边高压（低压）电伤害；7.6 缆绳断裂抽打伤害；7.7 坠海、坠物伤害；7.8 火灾伤害；7.9 车辆道路交通伤害；7.10 火车伤害；7.11 门机、挖掘机旋转伤害；7.12 上下设备坠落伤害；7.13 雨季坑洼、下水井损坏坠落伤害；7.14 维修作业机械伤害；7.15 有限空间中毒、窒息伤害；</div>
-                    <div class="list-item">七、遵守国家法律法规和港口设施保安相关规定；注意港区交通安全标志、安全警示标识、禁令、警戒安全提示，并遵守执行；</div>
-                    <div class="list-item">八、维修作业十大风险</div>
-                    <div class="list-item">1、高处坠落 2、触电风险 3、绞伤风险 4、挤压风险 5、刺割风险 6、物体打击 7、起重伤害 8、中毒窒息 9、烫、灼伤害 10、火灾、爆炸伤害</div>
-                    <div class="list-item">九、维修作业八项规定</div>
-                    <div class="list-item">1、严禁私自上皮带机 2、严禁触摸转动部位 3、严禁违规进入封闭区域 4、严禁无操作设备 5、严禁吸烟 6、必须戴安全帽，劳保穿戴整齐 7、上下走梯必须手扶栏杆 8、开展维修之前必须做好安全措施</div>
+                    <p style="text-align: center;"><strong>入场安全须知</strong></p>
+                    <p style="text-align: center;"><strong>(技术创新中心南区维修中心)</strong></p>
+                    <p><strong>为杜绝人身伤害事故，请您务必遵守以下规定：</strong></p>
+                    
+                    <p style="margin-top: 15px;"><strong>一、通用要求</strong></p>
+                    <div class="list-item">1. 车辆、人员服从现场指挥，车辆停至指定区域。</div>
+                    <div class="list-item">2. 全程正确佩戴安全帽；夜间加穿反光服、佩戴警示灯。</div>
+                    <div class="list-item">3. 严禁吸烟、饮酒、打闹、抛物及乱丢垃圾。</div>
+                    <div class="list-item">4. 禁止擅自进入警戒封闭区、临边区域、机械运行路线及垛位。</div>
+                    <div class="list-item">5. 驾驶车辆严格遵守道路交通法规，杜绝一切违反道路交通法的行为，同时遵守港区内道路限速要求。</div>
+                    
+                    <p style="margin-top: 15px;"><strong>二、现场"十不准"</strong></p>
+                    <div class="list-item">1. 不准在垛边、高杆灯、皮带机、货关下停留。</div>
+                    <div class="list-item">2. 不准攀爬垛位及私自使用港区设施、电源。</div>
+                    <div class="list-item">3. 不准靠近运转中的皮带、岸边缆绳及码头边缘。</div>
+                    <div class="list-item">4. 不准跨越、触碰未确认停电的转动、传动、带电部件。</div>
+                    <div class="list-item">5. 不准在漏斗、溜筒上方有积料时作业。</div>
+                    <div class="list-item">6. 皮带维修未拉≥3处急停、未与中控确认，不准开工。</div>
+                    <div class="list-item">7. 无封闭隔离、无停电挂牌上锁、无特种作业证件、无审批手续，不准动火、登高、吊装、临时用电、有限空间等作业。</div>
+                    <div class="list-item">8. 劳保用品穿戴不规范、工器具及灭火器不合格、超范围作业，不准开工。</div>
+                    <div class="list-item">9. 2 m及以上高处作业未系安全带，不准作业。</div>
+                    <div class="list-item">10. 工完未清场、废旧件未收回，不准离场。</div>
+                    
+                    <p style="margin-top: 15px;"><strong>三、主要危险源</strong></p>
+                    <div class="list-item">机械碰撞、车辆交通、货物坍塌、高空坠物、缆绳抽打、触电、坠海、火灾、中毒窒息、起重伤害等。</div>
+                    
+                    <p style="margin-top: 15px;"><strong>四、维修作业"八项规定"</strong></p>
+                    <div class="list-item">1. 严禁私自上皮带机。</div>
+                    <div class="list-item">2. 严禁触摸转动部位。</div>
+                    <div class="list-item">3. 严禁违规进入封闭区域。</div>
+                    <div class="list-item">4. 严禁无证操作设备。</div>
+                    <div class="list-item">5. 严禁吸烟。</div>
+                    <div class="list-item">6. 必须戴安全帽、劳保整齐。</div>
+                    <div class="list-item">7. 上下走梯手扶栏杆。</div>
+                    <div class="list-item">8. 作业前落实安全措施。</div>
+                    
                     <p style="text-align: center; color: #999; margin-top: 20px;">-- 已阅读到底部 --</p>
                 </div>
             </div>
@@ -238,7 +242,11 @@
             <div class="card">
                 <h3>填写信息</h3>
                 <div class="form-group">
-                    <label>单位名称：</label>
+                    <label>项目：</label>
+                    <input type="text" id="inputProject" placeholder="请输入项目名称">
+                </div>
+                <div class="form-group">
+                    <label>单位：</label>
                     <input type="text" id="inputCompany" placeholder="请输入单位全称">
                 </div>
             </div>
@@ -252,7 +260,7 @@
                 </div>
                 <div style="margin-top: 15px; display: flex; align-items: center;">
                     <input type="checkbox" id="agreeCheck" onchange="toggleGenBtn()" style="width: 20px; height: 20px;">
-                    <span style="margin-left: 10px; font-size: 14px;">我已阅读并完全理解安全告知内容</span>
+                    <span style="margin-left: 10px; font-size: 14px;">我已阅读并承诺严格遵守上述要求</span>
                 </div>
             </div>
 
@@ -264,70 +272,63 @@
     </div>
 
 
-    <!-- 3. 隐藏的打印层 (严格复刻参考图) -->
+    <!-- 隐藏的打印层 -->
     <div id="print-layer">
         <!-- === 第 1 页 === -->
         <div class="a4-page" id="page1">
-            <div class="doc-title">入港安全告知书</div>
+            <div class="doc-title">入场安全须知</div>
+            <div class="doc-subtitle">(技术创新中心南区维修中心)</div>
             <div class="doc-body">
-                <div class="p-indent">为了确保您在港区内的人身安全，避免出现伤害您或他人的意外发生，现将相关安全事项告知如下：</div>
-                <div class="list-item">一、港区内禁止随意停放车辆，车辆需停在现场管理人员指定区域，人员必须听从现场管理人员指挥；</div>
-                <div class="list-item">二、人员下车时要正确佩戴安全帽，夜间按规定穿戴带有反光标识的劳保防护用品和佩戴警示灯（爆闪灯），并注意躲避运行中的机械、车辆，防止车辆伤害；</div>
-                <div class="list-item">三、港区禁止吸烟，禁止随意丢弃垃圾杂物；</div>
-                <div class="list-item">四、未经允许严禁进入作业场地警戒封闭区域；</div>
-                <div class="list-item">五、现场注意事项</div>
-                <div class="list-item">5.1 进入现场后，严禁在垛空、垛边停留，防止货垛异常出现坍塌或塌方；</div>
-                <div class="list-item">5.2 严禁在高杆灯、皮带机、货关下停留，防止高空坠物或设备倾倒；</div>
-                <div class="list-item">5.3 严禁在机械、车辆运行路线停留或穿行，防止因机械、车辆司机观察不周造成的碰撞或碾压；</div>
-                <div class="list-item">5.4 严禁私自攀爬垛位，防止人员高空滑落或货物流淌掩埋；</div>
-                <div class="list-item">5.5 严禁私自用港区内的设施、机械及私接电源，防止触电或意外伤害；</div>
-                <div class="list-item">5.6 严禁穿行作业封闭区，防止货物打击及机械碰撞；</div>
-                <div class="list-item">5.7 严禁靠近运转中的皮带等设备，防止卷入造成机械伤害；</div>
-                <div class="list-item">5.8 严禁靠近码头边等临边区域，防止坠海淹溺；</div>
-                <div class="list-item">5.9 严禁靠近岸边缆绳区域，防止缆绳抽打伤害；</div>
-                <div class="list-item">5.10 上下大机时请抓稳踏牢，防高处坠落伤害；</div>
-                <div class="list-item">5.11 漏斗、溜筒维修时上方有积料严禁作业，必须积料清理完毕才能开始维修作业；</div>
-                <div class="list-item">5.12 皮带维修须拉至少 3 处急停，并向中控室确认；</div>
+                <div class="indent-text">为杜绝人身伤害事故，请您务必遵守以下规定：</div>
+                
+                <div class="section-title">一、通用要求</div>
+                <div class="list-item">1. 车辆、人员服从现场指挥，车辆停至指定区域。</div>
+                <div class="list-item">2. 全程正确佩戴安全帽；夜间加穿反光服、佩戴警示灯。</div>
+                <div class="list-item">3. 严禁吸烟、饮酒、打闹、抛物及乱丢垃圾。</div>
+                <div class="list-item">4. 禁止擅自进入警戒封闭区、临边区域、机械运行路线及垛位。</div>
+                <div class="list-item">5. 驾驶车辆严格遵守道路交通法规，杜绝一切违反道路交通法的行为，同时遵守港区内道路限速要求。</div>
+                
+                <div class="section-title">二、现场"十不准"</div>
+                <div class="list-item">1. 不准在垛边、高杆灯、皮带机、货关下停留。</div>
+                <div class="list-item">2. 不准攀爬垛位及私自使用港区设施、电源。</div>
+                <div class="list-item">3. 不准靠近运转中的皮带、岸边缆绳及码头边缘。</div>
+                <div class="list-item">4. 不准跨越、触碰未确认停电的转动、传动、带电部件。</div>
+                <div class="list-item">5. 不准在漏斗、溜筒上方有积料时作业。</div>
+                <div class="list-item">6. 皮带维修未拉≥3处急停、未与中控确认，不准开工。</div>
+                <div class="list-item">7. 无封闭隔离、无停电挂牌上锁、无特种作业证件、无审批手续，不准动火、登高、吊装、临时用电、有限空间等作业。</div>
+                <div class="list-item">8. 劳保用品穿戴不规范、工器具及灭火器不合格、超范围作业，不准开工。</div>
+                <div class="list-item">9. 2 m及以上高处作业未系安全带，不准作业。</div>
+                <div class="list-item">10. 工完未清场、废旧件未收回，不准离场。</div>
             </div>
         </div>
 
         <!-- === 第 2 页 === -->
         <div class="a4-page" id="page2">
             <div class="doc-body" style="margin-top: 10px;">
-                <div class="list-item">5.13 现场封闭隔离措施不标准不准开工；</div>
-                <div class="list-item">5.14 急停、停电、挂牌、上锁措施没有执行不准开工，需停高压电的必须办理停电手续；</div>
-                <div class="list-item">5.15 维修人员劳保防护用品穿戴不规范不准开工；</div>
-                <div class="list-item">5.16 特种作业未提供特殊作业资格证件不准开工；</div>
-                <div class="list-item">5.17 特殊作业（登高、动火、临时用电、密闭空间、吊装等）没有办理审批手续不准开工；</div>
-                <div class="list-item">5.18 使用不符合国家规范、标准的工属具、灭火器、仪器仪表不准开工；</div>
-                <div class="list-item">5.19 不得超出项目维修范围的触碰、调试、维修；</div>
-                <div class="list-item">5.20 不得跨越、触碰任何没有确认办理停电的转动、传动、振动功能部件及电气部件，并保持安全距离、采取防护措施；</div>
-                <div class="list-item">5.21 现场不准抽烟、打闹、跳跃、高空抛物，严禁酒后上岗；</div>
-                <div class="list-item">5.22 设备运行关路严禁停留、作业；</div>
-                <div class="list-item">5.23 坠落高度在基准面 2 米及以上维修必须佩带安全带；</div>
-                <div class="list-item">5.24 维修完毕工完场清，废旧件必须收回；</div>
-                <div class="list-item">5.25 维修作业严格执行《维修联络程序》、《岗位操作规程》；</div>
-                <div class="list-item" style="margin-top: 15px;">六、码头、场区、维修区存在的主要危险</div>
-                <div class="list-item">7.1 行经装载机作业区域伤害；7.2 行经倒运车作业区伤害；7.3 行经散货货物塌落伤害；7.4 行经货关撒货、悠荡伤害；7.5 岸边高压（低压）电伤害；7.6 缆绳断裂抽打伤害；7.7 坠海、坠物伤害；7.8 火灾伤害；7.9 车辆道路交通伤害；7.10 火车伤害；7.11 门机、挖掘机旋转伤害；7.12 上下设备坠落伤害；7.13 雨季坑洼、下水井损坏坠落伤害；7.14 维修作业机械伤害；7.15 有限空间中毒、窒息伤害；</div>
-                <div class="list-item" style="margin-top: 15px;">七、遵守国家法律法规和港口设施保安相关规定；注意港区交通安全标志、安全警示标识、禁令、警戒安全提示，并遵守执行；</div>
-                <div class="list-item" style="margin-top: 15px;">八、维修作业十大风险</div>
-                <div class="list-item">1、高处坠落 2、触电风险 3、绞伤风险 4、挤压风险 5、刺割风险 6、物体打击 7、起重伤害 8、中毒窒息 9、烫、灼伤害 10、火灾、爆炸伤害</div>
-                <div class="list-item" style="margin-top: 15px;">九、维修作业八项规定</div>
-            </div>
-        </div>
-
-        <!-- === 第 3 页 === -->
-        <div class="a4-page" id="page3">
-            <div class="doc-body" style="margin-top: 10px;">
-                <div class="list-item">1、严禁私自上皮带机 2、严禁触摸转动部位 3、严禁违规进入封闭区域 4、严禁无操作设备 5、严禁吸烟 6、必须戴安全帽，劳保穿戴整齐 7、上下走梯必须手扶栏杆 8、开展维修之前必须做好安全措施</div>
-                <div class="p-indent" style="margin-top: 30px;">请您认真阅读并严格遵守以上安全注意事项内容。谢谢合作，日照港技术创新中心南区维修中心</div>
+                <div class="section-title">三、主要危险源</div>
+                <div class="list-item">机械碰撞、车辆交通、货物坍塌、高空坠物、缆绳抽打、触电、坠海、火灾、中毒窒息、起重伤害等。</div>
+                
+                <div class="section-title">四、维修作业"八项规定"</div>
+                <div class="list-item">1. 严禁私自上皮带机。</div>
+                <div class="list-item">2. 严禁触摸转动部位。</div>
+                <div class="list-item">3. 严禁违规进入封闭区域。</div>
+                <div class="list-item">4. 严禁无证操作设备。</div>
+                <div class="list-item">5. 严禁吸烟。</div>
+                <div class="list-item">6. 必须戴安全帽、劳保整齐。</div>
+                <div class="list-item">7. 上下走梯手扶栏杆。</div>
+                <div class="list-item">8. 作业前落实安全措施。</div>
+                
+                <div class="indent-text" style="margin-top: 40px;">我已阅读并承诺严格遵守上述要求。</div>
+                
                 <div class="sign-section">
-                    <div class="sign-row">单位：<span id="fillCompany" class="inserted-text"></span></div>
-                    <div class="sign-row">被告知人：<img id="fillSign" class="inserted-sign-img" src="" style="display:none;"></div>
+                    <div class="sign-row">项目：<span id="fillProject" class="underline"></span></div>
+                    <div class="sign-row">单位：<span id="fillCompany" class="underline"></span></div>
+                    <div class="sign-row">被告知人(签字)：<img id="fillSign" class="inserted-sign-img" src="" style="display:none;"></div>
                 </div>
+                
                 <div class="official-footer">
                     <div>技术创新中心南区维修中心</div>
-                    <div id="fillDate" style="margin-top: 15px;">2025 年 X 月 X 日</div>
+                    <div id="fillDate" style="margin-top: 10px;">2025 年 X 月 X 日</div>
                 </div>
             </div>
         </div>
@@ -336,10 +337,10 @@
     <script>
         // --- 状态变量 ---
         let signaturePad = null;
-        let countdown = 5; // 强制阅读时间
+        let countdown = 5;
         let timer = null;
-        let hasReadBottom = false; // 是否滑动到底部
-        let hasTimePassed = false; // 时间是否到了
+        let hasReadBottom = false;
+        let hasTimePassed = false;
 
         window.onload = function() {
             // 初始化日期
@@ -430,8 +431,10 @@
 
         // --- PDF 生成逻辑 ---
         async function generatePDF() {
+            const project = document.getElementById('inputProject').value.trim();
             const company = document.getElementById('inputCompany').value.trim();
-            if(!company) return alert('请填写外协单位名称');
+            if(!project) return alert('请填写项目名称');
+            if(!company) return alert('请填写单位名称');
             if(!signaturePad || signaturePad.isEmpty()) return alert('请签名');
 
             const btn = document.getElementById('genBtn');
@@ -440,6 +443,7 @@
 
             try {
                 // 填充数据到打印层
+                document.getElementById('fillProject').innerText = project;
                 document.getElementById('fillCompany').innerText = company;
                 const signImg = document.getElementById('fillSign');
                 signImg.src = signaturePad.toDataURL();
@@ -448,7 +452,7 @@
                 // 生成
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF('p', 'mm', 'a4');
-                const pageIDs = ['page1', 'page2', 'page3'];
+                const pageIDs = ['page1', 'page2'];
                 
                 for (let i = 0; i < pageIDs.length; i++) {
                     const pageEl = document.getElementById(pageIDs[i]);
@@ -458,7 +462,7 @@
                     pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
                 }
 
-                pdf.save(`入港安全告知书_${company}.pdf`);
+                pdf.save(`入场安全须知_${company}.pdf`);
 
             } catch (err) {
                 console.error(err);
