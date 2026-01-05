@@ -249,6 +249,10 @@
                     <label>单位：</label>
                     <input type="text" id="inputCompany" placeholder="请输入单位全称">
                 </div>
+                <div class="form-group">
+                    <label>姓名：</label>
+                    <input type="text" id="inputName" placeholder="请输入姓名">
+                </div>
             </div>
 
             <div class="card">
@@ -323,6 +327,8 @@
                 <div class="sign-section">
                     <div class="sign-row">项目：<span id="fillProject" class="underline"></span></div>
                     <div class="sign-row">单位：<span id="fillCompany" class="underline"></span></div>
+                    <div class="sign-row">单位：<span id="fillName" class="underline"></span></div>
+
                     <div class="sign-row">被告知人(签字)：<img id="fillSign" class="inserted-sign-img" src="" style="display:none;"></div>
                 </div>
                 
@@ -433,8 +439,10 @@
         async function generatePDF() {
             const project = document.getElementById('inputProject').value.trim();
             const company = document.getElementById('inputCompany').value.trim();
+            const name = document.getElementById('inputName').value.trim();
             if(!project) return alert('请填写项目名称');
             if(!company) return alert('请填写单位名称');
+            if(!name) return alert('请填写姓名');
             if(!signaturePad || signaturePad.isEmpty()) return alert('请签名');
 
             const btn = document.getElementById('genBtn');
@@ -445,6 +453,8 @@
                 // 填充数据到打印层
                 document.getElementById('fillProject').innerText = project;
                 document.getElementById('fillCompany').innerText = company;
+                document.getElementById('fillName').innerText = name;
+
                 const signImg = document.getElementById('fillSign');
                 signImg.src = signaturePad.toDataURL();
                 signImg.style.display = 'block';
