@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>入场安全须知</title>
+    <title>入港安全须知</title>
     
     <!-- 引入核心库 -->
     <script src="https://unpkg.com/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -188,11 +188,11 @@
         <!-- ====== 步骤 1：强制阅读 ====== -->
         <div id="step-read">
             <div class="card">
-                <h3>入场安全须知</h3>
+                <h3>入港安全须知</h3>
                 <div class="progress-tip" id="scrollTip">请向下划动阅读完整条款 (5s)</div>
                 
                 <div class="read-box" id="readBox" onscroll="checkScroll()">
-                    <p style="text-align: center;"><strong>入场安全须知</strong></p>
+                    <p style="text-align: center;"><strong>入港安全须知</strong></p>
                     <p style="text-align: center;"><strong>(技术创新中心南区维修中心)</strong></p>
                     <p><strong>为杜绝人身伤害事故，请您务必遵守以下规定：</strong></p>
                     
@@ -276,7 +276,7 @@
     <div id="print-layer">
         <!-- === 第 1 页 === -->
         <div class="a4-page" id="page1">
-            <div class="doc-title">入场安全须知</div>
+            <div class="doc-title">入港安全须知</div>
             <div class="doc-subtitle">(技术创新中心南区维修中心)</div>
             <div class="doc-body">
                 <div class="indent-text">为杜绝人身伤害事故，请您务必遵守以下规定：</div>
@@ -462,7 +462,7 @@
                     pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
                 }
 
-                pdf.save(`入场安全须知_${company}.pdf`);
+                pdf.save(`入港安全须知_${company}.pdf`);
 
             } catch (err) {
                 console.error(err);
